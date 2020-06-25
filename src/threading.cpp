@@ -4,6 +4,8 @@
 #include "chttp.h"
 #include "threading.h"
 
+#include "log.h"
+
 using namespace GarrysMod;
 
 std::queue<HTTPRequest*>& getRequestQueue() {
@@ -22,7 +24,9 @@ std::queue<SuccessQueueData>& getSuccessQueue() {
 }
 
 bool scheduleRequest(HTTPRequest *request) {
+	DBGMSG("[%p] Appending to queue...", request);
 	getRequestQueue().push(request);
+	DBGMSG("[%p] Done appending to queue.", request);
 
 	return startThread();
 }

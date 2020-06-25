@@ -2,6 +2,8 @@
 #include "../chttp.h"
 #include "../threading.h"
 
+#include "../log.h"
+
 HANDLE hThread;
 DWORD dwThreadId;
 
@@ -9,6 +11,7 @@ DWORD WINAPI threadFunc(LPVOID data) {
 	while (!getRequestQueue().empty()) {
 		HTTPRequest *request = getRequestQueue().front();
 		getRequestQueue().pop();
+		DBGMSG("[%p] Retrieved request from queue.", request);
 		processRequest(request);
 		delete request;
 	}

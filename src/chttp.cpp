@@ -113,6 +113,8 @@ bool processRequest(HTTPRequest *request) {
 	std::string postbody;
 	const char* redirect;
 
+	DBGMSG("[%p] Starting to process request.", request);
+
 	curl = curl_easy_init();
 
 	if (!curl) {
@@ -169,11 +171,13 @@ resend:
 		goto resend;
 	}
 
+	DBGMSG("[%p] Request successful.", request);
 	curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response.code);
 
 	getSuccessQueue().push({request->success, response});
 
 cleanup:
+	DBGMSG("[%p] Cleaning up...", request);
 	if (curl)
 		curl_easy_cleanup(curl);
 
@@ -187,6 +191,7 @@ cleanup:
  */
 LUA_FUNCTION(CHTTP) {
 	auto *request = new HTTPRequest();
+	DBGMSG("[%p] Allocated HTTPRequest.", request);
 	bool ret;
 
 	if (!LUA->IsType(1, Lua::Type::Table)) {
@@ -266,9 +271,11 @@ LUA_FUNCTION(CHTTP) {
 	}
 	LUA->Pop();
 
+	DBGMSG("[%p] Preparing to schedule...", request);
 	ret = scheduleRequest(request);
 
 exit:
+	DBGMSG("[%p] Result: %d.", request, ret);
 	LUA->PushBool(ret); // Push result to the stack
 	return 1; // We are returning a single value
 }
