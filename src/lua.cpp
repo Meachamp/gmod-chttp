@@ -39,22 +39,3 @@ std::map<std::string, std::string> mapFromLuaTable(Lua::ILuaBase *LUA, int index
 
 	return map;
 }
-
-void printMessage(Lua::ILuaBase *LUA, const std::string& message) {
-	// Push global table to the stack to work on it
-	LUA->PushSpecial(Lua::SPECIAL_GLOB);
-
-	// Gets the print function and stores it at the top of the stack (top = -1)
-	LUA->GetField(-1, "print");
-
-	// Pushes the argument to the stack
-	LUA->PushString(("[CHTTP] " + message).c_str());
-
-	// Calls the function (arg1 = number of arguments, arg2 = number of return values).
-	// The function is the top of the stack after arguments have been popped.
-	// In this case, we are calling with 1 argument (the message) and no return values (because it's `print`, duh!)
-	LUA->Call(1, 0);
-
-	// Pops the last value from the stack (the global table?)
-	LUA->Pop();
-}

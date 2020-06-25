@@ -5,6 +5,8 @@
 #include "lua.h"
 #include "threading.h"
 
+#include "log.h"
+
 using namespace GarrysMod;
 
 std::string getUserAgent() {
@@ -188,7 +190,7 @@ LUA_FUNCTION(CHTTP) {
 	bool ret;
 
 	if (!LUA->IsType(1, Lua::Type::Table)) {
-		LOG("No HTTPRequest table set.");
+		MSG("No HTTPRequest table set.");
 		ret = false;
 		goto exit;
 	}
@@ -274,7 +276,7 @@ exit:
 GMOD_MODULE_OPEN() {
 #ifdef WINDOWS_BUILD
 	if (curl_global_sslset(CURLSSLBACKEND_SCHANNEL, nullptr, nullptr) != CURLSSLSET_OK) {
-		LOG("error: The WinSSL/schannel backend is not available!");
+		WARN("The WinSSL/schannel backend is not available!");
 		return 1;
 	}
 #endif
