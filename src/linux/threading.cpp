@@ -24,8 +24,17 @@ bool startThread() {
 	if (thread_exists)
 		return true;
 
-	if (pthread_create(&thread, nullptr, threadFunc, nullptr))
-		return false;
+	int retcode;
 
-	return pthread_detach(thread) == 0;
+	if ((retcode = pthread_create(&thread, nullptr, threadFunc, nullptr))) {
+		WARN("Could not create background thread: %d", retcode);
+		return false;
+	}
+
+	if ((retcode = pthread_detach(thread))) {
+		WARN("Could not detach background thread: %d", retcode);
+		return false;
+	}
+
+	return true;
 }

@@ -25,10 +25,17 @@ bool startThread() {
 		return true;
 
 	// Free old thread
-	if (hThread && !CloseHandle(hThread))
+	if (hThread && !CloseHandle(hThread)) {
+		WARN("Could not detach old background thread: %d", GetLastError());
 		return false;
+	}
 
 	hThread = CreateThread(nullptr, 0, threadFunc, nullptr, 0, &dwThreadId);
 
-	return hThread != nullptr;
+	if (hThread == nullptr) {
+		WARN("Could not create background thread: %d", GetLastError());
+		return false;
+	}
+
+	return true;
 }
