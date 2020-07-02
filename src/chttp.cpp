@@ -111,7 +111,6 @@ bool processRequest(HTTPRequest *request) {
 	bool ret = true;
 	HTTPResponse response = HTTPResponse();
 	std::string postbody;
-	const char* redirect;
 
 	DBGMSG("[%p] Starting to process request.", request);
 
@@ -147,9 +146,14 @@ bool processRequest(HTTPRequest *request) {
 
 	curlAddHeaders(curl, request);
 
-	curl_easy_setopt(curl, CURLOPT_URL, buildUrl(request).c_str());
+	const char *url;
+	url = buildUrl(request).c_str();
 
 resend:
+	curl_easy_setopt(curl, CURLOPT_URL, url);
+	DEV("Sending request to '%s'", url);
+	url = nullptr;
+
 	cres = curl_easy_perform(curl);
 
 	if (cres != CURLE_OK) {
@@ -158,15 +162,11 @@ resend:
 		goto cleanup;
 	}
 
-	curl_easy_getinfo(curl, CURLINFO_REDIRECT_URL, &redirect);
-	if (redirect) {
+	curl_easy_getinfo(curl, CURLINFO_REDIRECT_URL, &url);
+	if (url) {
 		// Clear out saved headers and body
 		response.headers.clear();
 		response.body.clear();
-
-		// Set the new URL and clear the temp variable
-		curl_easy_setopt(curl, CURLOPT_URL, redirect);
-		redirect = "";
 
 		goto resend;
 	}
